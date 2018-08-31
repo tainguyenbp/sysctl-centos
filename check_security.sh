@@ -548,12 +548,31 @@ echo "result expect: net.ipv4.tcp_syncookies = 1"
 
 }
 
-net_ipv4_tcp_syncookies
+# Cài đặt và cấu hình TCP Wrapper
+
+tcp_wrapper(){
+        rpm -q tcp_wrappers tcp_wrappers-libs
+echo "result expect: tcp_wrappers-* and tcp_wrappers-libs-*"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_wc_l=`rpm -q tcp_wrappers tcp_wrappers-libs | wc -l`
+                        if [ "$value_find_wc_l" == 2 ]
+                                then
+					echo "done, full package"						
+                        else
+                                echo "setup packet tcp_wrappers lost"	
+				yum install tcp_wrappers
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+}
 
 
-
-
-
+tcp_wrapper
 
 
 
