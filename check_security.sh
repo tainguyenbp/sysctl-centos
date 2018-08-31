@@ -25,7 +25,7 @@ net_ipv4_ip_forward(){
 echo "result expect: net.ipv4.ip_forward = 0"
         file_sysctl="/etc/sysctl.conf"
 	if [ -f "$file_sysctl" ];
-	echo "file found"
+	echo "file $file_sysctl found"
 		then
 			value_find_forward=`cat /etc/sysctl.conf | grep "net.ipv4.ip_forward" | wc -l`
 			if [ "$value_find_forward" == 1 ]
@@ -42,13 +42,76 @@ echo "result expect: net.ipv4.ip_forward = 0"
 				
 			else	
 				echo "add parameter net.ipv4.ip_forward = 0 to emptry"
-				sed '/5/ a net.ipv4.ip_forward = 0' "$file_sysctl"
+				echo "net.ipv4.ip_forward = 0" >> "$file_sysctl"
 			fi
 					
 	else
-		echo "file not found"
+		echo "file $file_sysctl not found"
 	fi
 	
 }
-net_ipv4_ip_forward
+
+# Tắt chức năng chuyển hướng gói tin
+net_ipv4_conf_all_send_redirects(){
+        sysctl net.ipv4.conf.all.send_redirects
+echo "result expect: net.ipv4.conf.all.send_redirects = 0"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.send_redirects" | wc -l`
+                        if [ "$value_find_all_send_redirects" == 1 ]
+                                then
+                                        value_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.send_redirects" | awk '{print $3}'`
+                                        if [  "$value_all_send_redirects" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.conf.all.send_redirects = 1 to net.ipv4.conf.all.send_redirects = 0"
+                                                sed -i 's/net.ipv4.conf.all.send_redirects = 1/net.ipv4.conf.all.send_redirects = 0/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.conf.all.send_redirects = 0 to net.ipv4.conf.all.send_redirects = 0"
+                                                sed -i 's/net.ipv4.conf.all.send_redirects = 0/net.ipv4.conf.all.send_redirects = 0/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.conf.all.send_redirects = 0 to emptry"
+				echo "#Tắt chức năng chuyển hướng gói tin" >> "$file_sysctl"
+                                echo "net.ipv4.conf.all.send_redirects = 0" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+net_ipv4_conf_all_send_redirects
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
