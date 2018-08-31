@@ -312,9 +312,75 @@ echo "result expect: net.ipv4.conf.default.secure_redirects = 0"
 
 }
 
-net_ipv4_conf_all_secure_redirects
-net_ipv4_conf_default_secure_redirects
 
+# Ghi nhận nhật ký gói tin nghi ngờ
+
+net_ipv4_conf_all_log_martians(){
+        sysctl net.ipv4.conf.all.log_martians 
+echo "result expect: net.ipv4.conf.all.log_martians = 1"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.log_martians" | wc -l`
+                        if [ "$value_find_all_send_redirects" == 1 ]
+                                then
+                                        value_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.log_martians " | awk '{print $3}'`
+                                        if [  "$value_all_send_redirects" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.conf.all.log_martians  = 0 to net.ipv4.conf.all.log_martians = 1"
+                                                sed -i 's/net.ipv4.conf.all.log_martians = 1/net.ipv4.conf.all.log_martians  = 1/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.conf.all.log_martians  = 0 to net.ipv4.conf.all.log_martians = 1"
+                                                sed -i 's/net.ipv4.conf.all.log_martians = 0/net.ipv4.conf.all.log_martians  = 1/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.conf.all.log_martians = 1 to emptry"
+								echo "#Ghi nhận nhật ký gói tin nghi ngờ" >> "$file_sysctl"
+                                echo "net.ipv4.conf.all.log_martians = 1" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+net_ipv4_conf_default_log_martians(){
+        sysctl net.ipv4.conf.default.log_martians
+echo "result expect: net.ipv4.conf.default.log_martians = 1"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.default.log_martians" | wc -l`
+                        if [ "$value_find_all_send_redirects" == 1 ]
+                                then
+                                        value_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.default.log_martians" | awk '{print $3}'`
+                                        if [  "$value_all_send_redirects" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.conf.default.log_martians = 1 to net.ipv4.conf.default.log_martians = 1"
+                                                sed -i 's/net.ipv4.conf.default.log_martians = 1/net.ipv4.conf.default.log_martians = 1/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.conf.default.log_martians = 0 to net.ipv4.conf.default.log_martians = 1"
+                                                sed -i 's/net.ipv4.conf.default.log_martians = 0/net.ipv4.conf.default.log_martians = 1/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.conf.default.log_martians = 1 to emptry"
+								echo "#Ghi nhận nhật ký gói tin nghi ngờ" >> "$file_sysctl"
+                                echo "net.ipv4.conf.default.log_martians = 1" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+net_ipv4_conf_all_log_martians
+net_ipv4_conf_default_log_martians
 
 
 
