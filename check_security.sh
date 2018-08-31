@@ -325,14 +325,14 @@ echo "result expect: net.ipv4.conf.all.log_martians = 1"
                         value_find_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.log_martians" | wc -l`
                         if [ "$value_find_all_send_redirects" == 1 ]
                                 then
-                                        value_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.log_martians " | awk '{print $3}'`
+                                        value_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.log_martians" | awk '{print $3}'`
                                         if [  "$value_all_send_redirects" == 1 ]
                                                 then
-                                                echo "change parameter net.ipv4.conf.all.log_martians  = 0 to net.ipv4.conf.all.log_martians = 1"
-                                                sed -i 's/net.ipv4.conf.all.log_martians = 1/net.ipv4.conf.all.log_martians  = 1/g' "$file_sysctl"
+                                                echo "change parameter net.ipv4.conf.all.log_martians = 0 to net.ipv4.conf.all.log_martians = 1"
+                                                sed -i 's/net.ipv4.conf.all.log_martians = 1/net.ipv4.conf.all.log_martians = 1/g' "$file_sysctl"
                                         else
-                                                echo "change parameter net.ipv4.conf.all.log_martians  = 0 to net.ipv4.conf.all.log_martians = 1"
-                                                sed -i 's/net.ipv4.conf.all.log_martians = 0/net.ipv4.conf.all.log_martians  = 1/g' "$file_sysctl"
+                                                echo "change parameter net.ipv4.conf.all.log_martians = 0 to net.ipv4.conf.all.log_martians = 1"
+                                                sed -i 's/net.ipv4.conf.all.log_martians = 0/net.ipv4.conf.all.log_martians = 1/g' "$file_sysctl"
                                         fi
 
                         else
@@ -379,9 +379,176 @@ echo "result expect: net.ipv4.conf.default.log_martians = 1"
 
 }
 
-net_ipv4_conf_all_log_martians
-net_ipv4_conf_default_log_martians
+# Bỏ qua các truy vấn ICMP broadcast
 
+net_ipv4_icmp_echo_ignore_broadcasts(){
+        sysctl net.ipv4.icmp_echo_ignore_broadcasts 
+echo "result expect: net.ipv4.icmp_echo_ignore_broadcasts = 1"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_wc_l=`cat /etc/sysctl.conf | grep "net.ipv4.icmp_echo_ignore_broadcasts" | wc -l`
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+                                        value_in_file=`cat /etc/sysctl.conf | grep "net.ipv4.icmp_echo_ignore_broadcasts" | awk '{print $3}'`
+                                        if [  "$value_in_file" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.icmp_echo_ignore_broadcasts = 0 to net.ipv4.icmp_echo_ignore_broadcasts = 1"
+                                                sed -i 's/net.ipv4.icmp_echo_ignore_broadcasts = 1/net.ipv4.icmp_echo_ignore_broadcasts = 1/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.icmp_echo_ignore_broadcasts = 0 to net.ipv4.icmp_echo_ignore_broadcasts = 1"
+                                                sed -i 's/net.ipv4.icmp_echo_ignore_broadcasts = 0/net.ipv4.icmp_echo_ignore_broadcasts = 1/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.icmp_echo_ignore_broadcasts = 1 to emptry"
+								echo "#Ghi nhận nhật ký gói tin nghi ngờ" >> "$file_sysctl"
+                                echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+# Không đáp ứng gói tin ICMP hư hỏng 
+
+net_ipv4_icmp_ignore_bogus_error_responses(){
+        sysctl net.ipv4.icmp_ignore_bogus_error_responses 
+echo "result expect: net.ipv4.icmp_ignore_bogus_error_responses = 1"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_wc_l=`cat /etc/sysctl.conf | grep "net.ipv4.icmp_ignore_bogus_error_responses" | wc -l`
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+                                        value_in_file=`cat /etc/sysctl.conf | grep "net.ipv4.icmp_ignore_bogus_error_responses " | awk '{print $3}'`
+                                        if [  "$value_in_file" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.icmp_ignore_bogus_error_responses  = 0 to net.ipv4.icmp_ignore_bogus_error_responses = 1"
+                                                sed -i 's/net.ipv4.icmp_ignore_bogus_error_responses = 1/net.ipv4.icmp_ignore_bogus_error_responses  = 1/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.icmp_ignore_bogus_error_responses  = 0 to net.ipv4.icmp_ignore_bogus_error_responses = 1"
+                                                sed -i 's/net.ipv4.icmp_ignore_bogus_error_responses = 0/net.ipv4.icmp_ignore_bogus_error_responses  = 1/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.icmp_ignore_bogus_error_responses = 1 to emptry"
+								echo "#Ghi nhận nhật ký gói tin nghi ngờ" >> "$file_sysctl"
+                                echo "net.ipv4.icmp_ignore_bogus_error_responses = 1" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+# Bật bộ lọc đường dẫn ngược
+
+net_ipv4_conf_all_rp_filter(){
+        sysctl net.ipv4.conf.all.rp_filter
+echo "result expect: net.ipv4.conf.all.rp_filter = 1"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_wc_l=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.rp_filter" | wc -l`
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+                                        value_in_file=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.rp_filter" | awk '{print $3}'`
+                                        if [  "$value_in_file" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.conf.all.rp_filter = 0 to net.ipv4.conf.all.rp_filter = 1"
+                                                sed -i 's/net.ipv4.conf.all.rp_filter = 1/net.ipv4.conf.all.rp_filter = 1/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.conf.all.rp_filter = 0 to net.ipv4.conf.all.rp_filter = 1"
+                                                sed -i 's/net.ipv4.conf.all.rp_filter = 0/net.ipv4.conf.all.rp_filter = 1/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.conf.all.rp_filter = 1 to emptry"
+								echo "#Bật bộ lọc đường dẫn ngược" >> "$file_sysctl"
+                                echo "net.ipv4.conf.all.rp_filter = 1" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+
+net_ipv4_conf_default_rp_filter(){
+        sysctl net.ipv4.conf.default.rp_filter
+echo "result expect: net.ipv4.conf.default.rp_filter = 1"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_wc_l=`cat /etc/sysctl.conf | grep "net.ipv4.conf.default.rp_filter" | wc -l`
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+                                        value_in_file=`cat /etc/sysctl.conf | grep "net.ipv4.conf.default.rp_filter" | awk '{print $3}'`
+                                        if [  "$value_in_file" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.conf.default.rp_filter = 0 to net.ipv4.conf.default.rp_filter = 1"
+                                                sed -i 's/net.ipv4.conf.default.rp_filter = 1/net.ipv4.conf.default.rp_filter = 1/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.conf.default.rp_filter = 0 to net.ipv4.conf.default.rp_filter = 1"
+                                                sed -i 's/net.ipv4.conf.default.rp_filter = 0/net.ipv4.conf.default.rp_filter = 1/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.conf.default.rp_filter = 1 to emptry"
+								echo "#Bật bộ lọc đường dẫn ngược" >> "$file_sysctl"
+                                echo "net.ipv4.conf.default.rp_filter = 1" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+# Bật chức năng TCP SYN Cookie
+
+net_ipv4_tcp_syncookies(){
+        sysctl net.ipv4.tcp_syncookies
+echo "result expect: net.ipv4.tcp_syncookies = 1"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_wc_l=`cat /etc/sysctl.conf | grep "net.ipv4.tcp_syncookies" | wc -l`
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+                                        value_in_file=`cat /etc/sysctl.conf | grep "net.ipv4.tcp_syncookies" | awk '{print $3}'`
+                                        if [  "$value_in_file" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.tcp_syncookies = 0 to net.ipv4.tcp_syncookies = 1"
+                                                sed -i 's/net.ipv4.tcp_syncookies = 1/net.ipv4.tcp_syncookies = 1/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.tcp_syncookies = 0 to net.ipv4.tcp_syncookies = 1"
+                                                sed -i 's/net.ipv4.tcp_syncookies = 0/net.ipv4.tcp_syncookies = 1/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.tcp_syncookies = 1 to emptry"
+								echo "#Bật bộ lọc đường dẫn ngược" >> "$file_sysctl"
+                                echo "net.ipv4.tcp_syncookies = 1" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+net_ipv4_tcp_syncookies
 
 
 
