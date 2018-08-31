@@ -179,11 +179,75 @@ echo "result expect: net.ipv4.conf.default.accept_source_route = 0"
         fi
 
 }
-net_ipv4_conf_all_accept_source_route
-net_ipv4_conf_default_accept_source_route
 
+#Không chấp nhận chuyển hướng gói tin ICMP
 
+net_ipv4_conf_all_accept_redirects(){
+        sysctl net.ipv4.conf.all.accept_redirects
+echo "result expect: net.ipv4.conf.all.accept_redirects = 0"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.accept_redirects" | wc -l`
+                        if [ "$value_find_all_send_redirects" == 1 ]
+                                then
+                                        value_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.all.accept_redirects" | awk '{print $3}'`
+                                        if [  "$value_all_send_redirects" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.conf.all.accept_redirects = 1 to net.ipv4.conf.all.accept_redirects = 0"
+                                                sed -i 's/net.ipv4.conf.all.accept_redirects = 1/net.ipv4.conf.all.accept_redirects = 0/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.conf.all.accept_redirects = 0 to net.ipv4.conf.all.accept_redirects = 0"
+                                                sed -i 's/net.ipv4.conf.all.accept_redirects = 0/net.ipv4.conf.all.accept_redirects = 0/g' "$file_sysctl"
+                                        fi
 
+                        else
+                                echo "add parameter net.ipv4.conf.all.accept_redirects = 0 to emptry"
+								echo "#Không chấp nhận chuyển hướng gói tin ICMP" >> "$file_sysctl"
+                                echo "net.ipv4.conf.all.accept_redirects = 0" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+net_ipv4_conf_default_accept_redirects(){
+        sysctl net.ipv4.conf.default.accept_redirects
+echo "result expect: net.ipv4.conf.default.accept_redirects = 0"
+        file_sysctl="/etc/sysctl.conf"
+        if [ -f "$file_sysctl" ];
+        echo "file $file_sysctl found"
+                then
+                        value_find_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.default.accept_redirects" | wc -l`
+                        if [ "$value_find_all_send_redirects" == 1 ]
+                                then
+                                        value_all_send_redirects=`cat /etc/sysctl.conf | grep "net.ipv4.conf.default.accept_redirects" | awk '{print $3}'`
+                                        if [  "$value_all_send_redirects" == 1 ]
+                                                then
+                                                echo "change parameter net.ipv4.conf.default.accept_redirects = 1 to net.ipv4.conf.default.accept_redirects = 0"
+                                                sed -i 's/net.ipv4.conf.default.accept_redirects = 1/net.ipv4.conf.default.accept_redirects = 0/g' "$file_sysctl"
+                                        else
+                                                echo "change parameter net.ipv4.conf.default.accept_redirects = 0 to net.ipv4.conf.default.accept_redirects = 0"
+                                                sed -i 's/net.ipv4.conf.default.accept_redirects = 0/net.ipv4.conf.default.accept_redirects = 0/g' "$file_sysctl"
+                                        fi
+
+                        else
+                                echo "add parameter net.ipv4.conf.default.accept_redirects = 0 to emptry"
+								echo "#Không chấp nhận chuyển hướng gói tin ICMP" >> "$file_sysctl"
+                                echo "net.ipv4.conf.default.accept_redirects = 0" >> "$file_sysctl"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+
+}
+
+net_ipv4_conf_all_accept_redirects
+net_ipv4_conf_default_accept_redirects
 
 
 
