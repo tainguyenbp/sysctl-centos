@@ -596,11 +596,32 @@ echo "result expect: max_log_file = 6  max_log_file_action = ROTATE"
         fi
 }
 
-max_log_file        
+max_log_file_action(){
+        grep "max_log_file_action =" /etc/audit/auditd.conf
+echo "result expect: max_log_file_action = ROTATE"
+        file_auditd="/etc/audit/auditd.conf"
+        if [ -f "$file_auditd" ];
+        echo "file $file_auditd found"
+                then
+                        value_find_wc_l=`grep "max_log_file_action =" /etc/audit/auditd.conf | wc -l`
+						
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+					value_find_file=`grep "max_log_file_action =" /etc/audit/auditd.conf | awk '{print $3}'`
+					echo "change parameter max_log_file_action = $value_find_file to max_log_file_action = ROTATE"
+					sed -i 's/max_log_file_action = '$value_find_file'/max_log_file_action = ROTATE/g' "$file_auditd"
+                        else
+                                echo "setup packet tcp_wrappers lost"	
+								
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+}
 
 
-
-
+max_log_file_action
 
 
 
