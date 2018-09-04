@@ -587,8 +587,8 @@ echo "result expect: max_log_file = 6  max_log_file_action = ROTATE"
 					echo "change parameter max_log_file = $value_find_file to max_log_file = 128"
               				sed -i 's/max_log_file = '$value_find_file'/max_log_file = 128/g' "$file_auditd"
                         else
-                                echo "setup packet tcp_wrappers lost"	
-								
+                                echo "add line max_log_file = 128 to file $file_auditd"
+				echo "max_log_file = 128" >> "$file_auditd"			
                         fi
 
         else
@@ -598,7 +598,7 @@ echo "result expect: max_log_file = 6  max_log_file_action = ROTATE"
 
 max_log_file_action(){
         grep "max_log_file_action =" /etc/audit/auditd.conf
-echo "result expect: max_log_file_action = ROTATE"
+echo "result expect: max_log_file_action = keep_logs"
         file_auditd="/etc/audit/auditd.conf"
         if [ -f "$file_auditd" ];
         echo "file $file_auditd found"
@@ -609,10 +609,10 @@ echo "result expect: max_log_file_action = ROTATE"
                                 then
 					value_find_file=`grep "max_log_file_action =" /etc/audit/auditd.conf | awk '{print $3}'`
 					echo "change parameter max_log_file_action = $value_find_file to max_log_file_action = ROTATE"
-					sed -i 's/max_log_file_action = '$value_find_file'/max_log_file_action = ROTATE/g' "$file_auditd"
+					sed -i 's/max_log_file_action = '$value_find_file'/max_log_file_action = keep_logs/g' "$file_auditd"
                         else
-                                echo "setup packet tcp_wrappers lost"	
-								
+                                echo "add line max_log_file_action = keep_logs to file $file_auditd"	
+				echo "max_log_file_action = keep_logs" >> "$file_auditd"				
                         fi
 
         else
@@ -621,9 +621,57 @@ echo "result expect: max_log_file_action = ROTATE"
 }
 
 
-max_log_file_action
+space_left_action(){
+        grep "space_left_action =" /etc/audit/auditd.conf
+echo "result expect: space_left_action = SYSLOG"
+        file_auditd="/etc/audit/auditd.conf"
+        if [ -f "$file_auditd" ];
+        echo "file $file_auditd found"
+                then
+                        value_find_wc_l=`grep "space_left_action =" /etc/audit/auditd.conf | grep -v admin_space_left_action | wc -l`
+						
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+					value_find_file=`grep "space_left_action =" /etc/audit/auditd.conf |grep -v admin_space_left_action | awk '{print $3}'`
+					echo "change parameter space_left_action = $value_find_file to space_left_action = SYSLOG"
+                                    #sed -e /space_left_action =/p /etc/audit/auditd.conf
+					sed -i 's/space_left_action = "$value_find_file"/space_left_action = SYSLOG/g' "$file_auditd"
+                        else
+                                echo "setup packet tcp_wrappers lost"	
+				echo "space_left_action = SYSLOG" >> "$file_auditd"				
+                        fi
 
+        else
+                echo "file $file_sysctl not found"
+        fi
+}
 
+admin_space_left_action(){
+        grep "admin_space_left_action =" /etc/audit/auditd.conf
+echo "result expect: admin_space_left_action = halt"
+        file_auditd="/etc/audit/auditd.conf"
+        if [ -f "$file_auditd" ];
+        echo "file $file_auditd found"
+                then
+                        value_find_wc_l=`grep "admin_space_left_action =" /etc/audit/auditd.conf | wc -l`
+						
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+				value_find_file=`grep "admin_space_left_action =" /etc/audit/auditd.conf | awk '{print $3}'`
+				echo "change parameter admin_space_left_action = $value_find_file to admin_space_left_action = halt"
+				sed -i 's/admin_space_left_action = '$value_find_file'/admin_space_left_action = halt/g' "$file_auditd"
+                        else
+                                echo "add line admin_space_left_action = halt to file $file_auditd"	
+				echo "admin_space_left_action = halt" >> "$file_auditd"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+	fi
+	
+}
+
+admin_space_left_action
 
 
 
