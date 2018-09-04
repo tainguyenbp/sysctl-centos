@@ -658,8 +658,13 @@ echo "result expect: admin_space_left_action = halt"
                         if [ "$value_find_wc_l" == 1 ]
                                 then
 				value_find_file=`grep "admin_space_left_action =" /etc/audit/auditd.conf | awk '{print $3}'`
-				echo "change parameter admin_space_left_action = $value_find_file to admin_space_left_action = halt"
-				sed -i 's/admin_space_left_action = '$value_find_file'/admin_space_left_action = halt/g' "$file_auditd"
+					if [ "$value_find_file" == "halt" ]
+					then 
+						echo "Not change parameter admin_space_left_action = $value_find_file in file"
+					else
+						echo "change parameter admin_space_left_action = $value_find_file to admin_space_left_action = halt"
+						sed -i 's/admin_space_left_action = '$value_find_file'/admin_space_left_action = halt/g' "$file_auditd"
+					fi
                         else
                                 echo "add line admin_space_left_action = halt to file $file_auditd"	
 				echo "admin_space_left_action = halt" >> "$file_auditd"
@@ -671,9 +676,37 @@ echo "result expect: admin_space_left_action = halt"
 	
 }
 
+action_mail_acct(){
+        grep "action_mail_acct =" /etc/audit/auditd.conf
+echo "result expect: action_mail_acct = root"
+        file_auditd="/etc/audit/auditd.conf"
+        if [ -f "$file_auditd" ];
+        echo "file $file_auditd found"
+                then
+                        value_find_wc_l=`grep "action_mail_acct =" /etc/audit/auditd.conf | wc -l`
+
+                        if [ "$value_find_wc_l" == 1 ]
+                                then
+				value_find_file=`grep "action_mail_acct =" /etc/audit/auditd.conf | awk '{print $3}'`
+					if [ "$value_find_file" == "root" ]
+					then
+						echo "Not change parameter action_mail_acct = $value_find_file in file"
+				else
+					echo "change parameter action_mail_acct = $value_find_file to action_mail_acct = root"
+					sed -i 's/action_mail_acct = '$value_find_file'/action_mail_acct = root/g' "$file_auditd"
+				fi
+                        else
+                                echo "add line action_mail_acct = root to file $file_auditd"
+                                echo "action_mail_acct = root" >> "$file_auditd"
+                        fi
+
+        else
+                echo "file $file_sysctl not found"
+        fi
+}
+
+
 admin_space_left_action
-
-
 
 
 
