@@ -623,7 +623,7 @@ echo "result expect: max_log_file_action = keep_logs"
 
 space_left_action(){
         grep "space_left_action =" /etc/audit/auditd.conf
-echo "result expect: space_left_action = SYSLOG"
+echo "result expect: space_left_action = email"
         file_auditd="/etc/audit/auditd.conf"
         if [ -f "$file_auditd" ];
         echo "file $file_auditd found"
@@ -632,13 +632,17 @@ echo "result expect: space_left_action = SYSLOG"
 						
                         if [ "$value_find_wc_l" == 1 ]
                                 then
-					value_find_file=`grep "space_left_action =" /etc/audit/auditd.conf |grep -v admin_space_left_action | awk '{print $3}'`
-					echo "change parameter space_left_action = $value_find_file to space_left_action = SYSLOG"
-                                    #sed -e /space_left_action =/p /etc/audit/auditd.conf
-					sed -i 's/space_left_action = "$value_find_file"/space_left_action = SYSLOG/g' "$file_auditd"
+				value_find_file=`grep "space_left_action =" /etc/audit/auditd.conf |grep -v admin_space_left_action | awk '{print $3}'`
+					if [ "$value_find_file" == "email" ]
+					then
+						echo "Not change parameter space_left_action = $value_find_file in file"
+					else
+						echo "change parameter space_left_action = $value_find_file to space_left_action = email"
+                                                sed -i 's/space_left_action = '$value_find_file'/space_left_action = email/g' "$file_auditd"
+					fi
                         else
-                                echo "setup packet tcp_wrappers lost"	
-				echo "space_left_action = SYSLOG" >> "$file_auditd"				
+                                echo "add line space_left_action = email to file $file_auditd"	
+				echo "space_left_action = email" >> "$file_auditd"				
                         fi
 
         else
@@ -705,14 +709,78 @@ echo "result expect: action_mail_acct = root"
         fi
 }
 
+enabled_service_auditd(){
+		
+	var=`cat /etc/centos-release | awk '{print $2}'`	
+	if [ "$var" == "Linux" ]
+		then 
+			echo "enable service auditd on centos 7"
+			systemctl enable auditd			
+				
+	elif [ "$var" == "release" ] 
+		then
+		echo "enable service auditd on centos 6"
+		chkconfig auditd on
+	else
+		echo "command not execute"	
+	fi
 
-admin_space_left_action
+}
+
+time_change_auditd(){
+
+		echo "result expect: "
+		echo "-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change" 
+		echo "-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change"
+		echo "-a always,exit -F arch=b64 -S clock_settime -k time-change"
+		echo "-a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change"
+		
+		file_path=/etc/audit/audit.rules		
+
+	value_b64_adjtimex=`cat /etc/audit/audit.rules | grep "always" | grep "arch=b64" | grep "adjtimex" | grep "settimeofday" | grep "time-change" | wc -l`
+	value_b32_adjtimex=`cat /etc/audit/audit.rules | grep "always" | grep "arch=b32" | grep "adjtimex" | grep "settimeofday" | grep "time-change" | wc -l`
+	value_b64_clock_settime=`cat /etc/audit/audit.rules | grep "always" | grep "arch=b64" | grep "clock_settime" | grep "time-change" | wc -l`
+	value_b32_clock_settime=`cat /etc/audit/audit.rules | grep "always" | grep "arch=b32" | grep "clock_settime" | grep "time-change" | grep "/etc/localtime" | wc -l`
+# '-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change 
+	if [ "$value_b64_adjtimex" == 0 ]
+		then
+		echo "Add -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change to $file_path"
+		echo "-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change" >> "$file_path"
+			
+	else
+		echo "Not -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change to $file_path "
+			
+	fi
+# '-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change 	
+	if [ "$value_b32_adjtimex" == 0 ]
+		then
+		echo "Add -a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change to $file_path"
+                echo "-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change" >> "$file_path"
+
+	else
+		echo "Not -a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change to $file_path "	
+	fi
+# '-a always,exit -F arch=b64 -S clock_settime -k time-change 
+	if [ "$value_b64_clock_settime" == 0 ]
+                then
+                echo "Add -a always,exit -F arch=b64 -S clock_settime -k time-change to $file_path"
+                echo "-a always,exit -F arch=b64 -S clock_settime -k time-change" >> "$file_path"
+
+        else
+                echo "Not -a always,exit -F arch=b64 -S clock_settime -k time-change to $file_path "
+        fi
+# '-a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change
+	if [ "$value_b32_clock_settime" == 0 ]
+                then
+                echo "Add -a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change to $file_path"
+                echo "-a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change" >> "$file_path"
+
+        else
+                echo "Not -a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change to $file_path "
+        fi
 
 
-
-
-
-
+}
 
 
 
