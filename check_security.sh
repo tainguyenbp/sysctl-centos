@@ -776,11 +776,166 @@ time_change_auditd(){
                 echo "-a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change" >> "$file_path"
 
         else
-                echo "Not -a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change to $file_path "
+                echo "Not -a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change to $file_path"
+        fi
+	
+}
+
+
+audit_identity(){
+
+                echo "result expect: "
+                echo "'-w /etc/group -p wa -k identity "
+                echo "'-w /etc/passwd -p wa -k identity "
+                echo "'-w /etc/gshadow -p wa -k identity "
+                echo "'-w /etc/shadow -p wa -k identity "
+		echo "'-w /etc/security/opasswd -p wa -k identity"
+
+                file_path=/etc/audit/audit.rules
+		
+		value_group_identity=`cat /etc/audit/audit.rules | grep "/etc/group" | grep "identity" | wc -l`
+		value_passwd_identity=`cat /etc/audit/audit.rules | grep "/etc/passwd" | grep "identity" | wc -l`
+		value_gshadow_identity=`cat /etc/audit/audit.rules | grep "/etc/gshadow" | grep "identity" | wc -l`
+		value_shadow_identity=`cat /etc/audit/audit.rules | grep "/etc/shadow" | grep "identity" | wc -l`
+		value_opasswd_identity=`cat /etc/audit/audit.rules | grep "/etc/security/opasswd" | grep "identity" | wc -l`
+# -w /etc/group -p wa -k identity 
+		if [ "$value_group_identity" == 0 ]
+                	then
+				echo "Add -w /etc/group -p wa -k identity to $file_path" 
+				echo "-w /etc/group -p wa -k identity" >> "$file_path"
+		else
+			echo "Not -w /etc/group -p wa -k identity to  $file_path"
+		fi
+# -w /etc/passwd -p wa -k identity  		
+		if [ "$value_passwd_identity" == 0 ]
+                        then
+                                echo "Add -w /etc/passwd -p wa -k identity to $file_path"
+                                echo "-w /etc/passwd -p wa -k identity" >> "$file_path"
+                else
+                        echo "Not -w /etc/passwd -p wa -k identity $file_path"
+                fi
+# -w /etc/gshadow -p wa -k identity 
+		if [ "$value_gshadow_identity" == 0 ]
+                        then
+                                echo "Add -w /etc/gshadow -p wa -k identity to $file_path"
+                                echo "-w /etc/gshadow -p wa -k identity" >> "$file_path"
+                else
+                        echo "Not -w /etc/gshadow -p wa -k identity to $file_path"
+                fi
+# -w /etc/shadow -p wa -k identity 		
+		if [ "$value_shadow_identity" == 0 ]
+                        then
+                                echo "Add -w /etc/shadow -p wa -k identity to $file_path"
+                                echo "-w /etc/shadow -p wa -k identity" >> "$file_path"
+                else
+                        echo "Not -w /etc/shadow -p wa -k identity to $file_path"
+                fi
+# -w /etc/security/opasswd -p wa -k identity		
+		if [ "$value_opasswd_identity" == 0 ]
+                        then
+                                echo "Add -w /etc/security/opasswd -p wa -k identity to $file_path"
+                                echo "-w /etc/security/opasswd -p wa -k identity" >> "$file_path"
+                else
+                        echo "Not -w /etc/security/opasswd -p wa -k identity to $file_path"
+                fi
+}
+
+
+audit_login(){
+
+                echo "result expect: "
+                echo "-w /var/log/lastlog -p wa -k logins"
+		echo "-w /var/run/faillock/ -p wa -k logins"
+	
+	file_path=/etc/audit/audit.rules
+	
+	value_lastlog_logins=`cat /etc/audit/audit.rules | grep "lastlog" | grep "logins"`
+	value_faillock_logins=`cat /etc/audit/audit.rules | grep "faillock" | grep "logins"`
+# -w /var/log/lastlog -p wa -k logins
+	if [ "$value_lastlog_logins" == 0 ]
+                        then
+                                echo "Add -w /var/log/lastlog -p wa -k logins to $file_path"
+                                echo "-w /var/log/lastlog -p wa -k logins" >> "$file_path"
+        else
+                      echo "Not -w /var/log/lastlog -p wa -k logins to $file_path"
         fi
 
+# -w /var/run/faillock/ -p wa -k logins	
+        if [ "$value_faillock_logins" == 0 ]
+                        then
+                                echo "Add -w /var/run/faillock/ -p wa -k logins to $file_path"
+                                echo "-w /var/run/faillock/ -p wa -k logins" >> "$file_path"
+        else
+                       echo "Not -w /var/run/faillock/ -p wa -k logins to $file_path"
+        fi
 
 }
+
+auditctl_delete(){
+
+                echo "result expect: "
+                echo "-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete"
+                echo "-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete"
+
+                file_path=/etc/audit/audit.rules
+				
+				value_auditctl_b64_delete=`cat /etc/audit/audit.rules | grep "arch=b64" | grep "unlinkat" | grep "renameat" | grep "4294967295" | grep "delete" | wc -l`
+				value_auditctl_b32_delete=`cat /etc/audit/audit.rules | grep "arch=b32" | grep "unlinkat" | grep "renameat" | grep "4294967295" | grep "delete" | wc -l`
+				
+# -a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
+
+        if [ "$value_auditctl_b64_delete" == 0 ]
+                        then
+                                echo "Add -a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete to $file_path"
+                                echo "-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete" >> "$file_path"
+        else
+                      echo "Not -a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete to $file_path"
+        fi
+
+# -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
+        if [ "$value_auditctl_b32_delete" == 0 ]
+                        then
+                                echo "Add -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete to $file_path"
+                                echo "-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete" >> "$file_path"
+        else
+                       echo "Not -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete to $file_path"
+        fi
+				
+}
+
+auditctl_scope(){
+
+                echo "result expect: "
+                echo "-w /etc/sudoers -p wa -k scope"
+                echo "-w /etc/sudoers.d/ -p wa -k scope"
+
+                file_path=/etc/audit/audit.rules
+				
+				value_auditctl_scope=`cat /etc/audit/audit.rules | grep "/etc/sudoers" | grep "scope" | wc -l`
+				value_auditctl_scope=`cat /etc/audit/audit.rules | grep "/etc/sudoers.d/" | grep "scope" | wc -l`
+				
+# -w /etc/sudoers -p wa -k scope
+
+        if [ "$value_auditctl_scope" == 0 ]
+                        then
+                                echo "Add -w /etc/sudoers -p wa -k scope to $file_path"
+                                echo "-w /etc/sudoers -p wa -k scope" >> "$file_path"
+        else
+                      echo "Not -w /etc/sudoers -p wa -k scope to $file_path"
+        fi
+
+# -w /etc/sudoers.d/ -p wa -k scope
+        if [ "$value_auditctl_scope" == 0 ]
+                        then
+                                echo "Add -w /etc/sudoers.d/ -p wa -k scope to $file_path"
+                                echo "-w /etc/sudoers.d/ -p wa -k scope" >> "$file_path"
+        else
+                       echo "Not -w /etc/sudoers.d/ -p wa -k scope to $file_path"
+        fi
+				
+}
+
+auditctl_scope
 
 
 
