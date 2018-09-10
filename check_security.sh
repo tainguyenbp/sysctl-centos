@@ -1017,7 +1017,7 @@ enable_service_rsyslog(){
 	
 }
 
-enable_service_rsyslog(){
+enable_service_crond(){
 
         var=`cat /etc/centos-release | awk '{print $2}'`
         if [ "$var" == "Linux" ]
@@ -1172,4 +1172,51 @@ LoginGraceTime_ssh(){
         fi
 }
 
+
+bootloader
+net_ipv4_ip_forward
+net_ipv4_conf_all_send_redirects
+
+net_ipv4_conf_default_send_redirects
+net_ipv4_conf_all_accept_source_route
+net_ipv4_conf_default_accept_source_route
+net_ipv4_conf_all_accept_redirects
+net_ipv4_conf_default_accept_redirects
+net_ipv4_conf_all_secure_redirects
+net_ipv4_conf_default_secure_redirects
+net_ipv4_conf_all_log_martians
+net_ipv4_conf_default_log_martians
+net_ipv4_icmp_echo_ignore_broadcasts
+
+
+net_ipv4_icmp_ignore_bogus_error_responses
+
+net_ipv4_conf_all_rp_filter
+net_ipv4_conf_default_rp_filter
+
+net_ipv4_tcp_syncookies
+
+tcp_wrapper
+max_log_file
+max_log_file_action
+space_left_action
+admin_space_left_action
+action_mail_acct
+enabled_service_auditd
+time_change_auditd
+audit_identity
+audit_login
+auditctl_delete
+auditctl_scope
+auditctl_actions
+setup_ntp_chrony
+enable_service_rsyslog
+enable_service_crond
+chown_chmod_crond
+tunning_ssh
+MaxAuthTries_ssh
+MACs_ssh
+ClientAliveInterval_ssh
+ClientAliveCountMax_ssh
+LoginGraceTime_ssh
 
