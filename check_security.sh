@@ -1089,8 +1089,87 @@ MaxAuthTries_ssh(){
 }
 
 
+MACs_ssh(){
+
+        file_ssh="/etc/ssh/sshd_config"
+
+        value_MACs=`egrep "MACs" /etc/ssh/sshd_config | wc -l`
+        if [ "$value_MACs" == 0 ]
+                then
+                echo "Add line MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com,curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256 to $file_ssh"
+                echo "MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com,curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> "$file_ssh"
+        else      
+                echo "not change parameter MACs"
+        fi
+}
 
 
+ClientAliveInterval_ssh(){
 
+        file_ssh="/etc/ssh/sshd_config"
+
+        value_ClientAliveInterval=`egrep "#ClientAliveInterval" /etc/ssh/sshd_config | wc -l`
+        if [ "$value_ClientAliveInterval" == 0 ]
+                then
+                echo "add line ClientAliveInterval 0 to $file_ssh"
+                echo "ClientAliveInterval 0" >> "$file_ssh"
+        else
+                value_find_ClientAliveInterval=`egrep "#ClientAliveInterval" /etc/ssh/sshd_config | awk '{print $2}'`
+                if [ "$value_find_ClientAliveInterval" == 0 ]
+                        then
+                                echo "not change value ClientAliveInterval 0"
+								sed -i 's/#ClientAliveInterval '$value_find_ClientAliveInterval'/ClientAliveInterval 0/g' "$file_ssh"
+                else
+                        echo "change parameter ClientAliveInterval '$value_find_ClientAliveInterval to ClientAliveInterval 4"
+                        sed -i 's/#ClientAliveInterval '$value_find_ClientAliveInterval'/ClientAliveInterval 0/g' "$file_ssh"
+                fi
+        fi
+}
+
+
+ClientAliveCountMax_ssh(){
+
+        file_ssh="/etc/ssh/sshd_config"
+
+        value_ClientAliveCountMax=`egrep "#ClientAliveCountMax" /etc/ssh/sshd_config | wc -l`
+        if [ "$value_ClientAliveCountMax" == 0 ]
+                then
+                echo "add line ClientAliveCountMax 300 to $file_ssh"
+                echo "ClientAliveCountMax 300" >> "$file_ssh"
+        else
+                value_find_ClientAliveCountMax=`egrep "#ClientAliveCountMax" /etc/ssh/sshd_config | awk '{print $2}'`
+                if [ "$value_find_ClientAliveCountMax" == 0 ]
+                        then
+                                echo "not change value ClientAliveCountMax 300"
+								sed -i 's/#ClientAliveCountMax '$value_find_ClientAliveCountMax'/ClientAliveCountMax 300/g' "$file_ssh"
+                else
+                        echo "change parameter ClientAliveCountMax '$value_find_ClientAliveCountMax to ClientAliveCountMax 300"
+                        sed -i 's/#ClientAliveCountMax '$value_find_ClientAliveCountMax'/ClientAliveCountMax 300/g' "$file_ssh"
+                fi
+        fi
+}
+
+
+LoginGraceTime_ssh(){
+
+        file_ssh="/etc/ssh/sshd_config"
+
+        value_LoginGraceTime=`egrep "#LoginGraceTime" /etc/ssh/sshd_config | wc -l`
+        if [ "$value_LoginGraceTime" == 0 ]
+                then
+                echo "add line LoginGraceTime 60 to $file_ssh"
+                echo "LoginGraceTime 60" >> "$file_ssh"
+        else
+                value_find_LoginGraceTime=`egrep "#LoginGraceTime" /etc/ssh/sshd_config | awk '{print $2}'`
+                if [ "$value_find_LoginGraceTime" == 0 ]
+                        then
+                                echo "not change value LoginGraceTime 60"
+								sed -i 's/#LoginGraceTime '$value_find_LoginGraceTime'/LoginGraceTime 60/g' "$file_ssh"
+                else
+                        echo "change parameter LoginGraceTime '$value_find_LoginGraceTime to LoginGraceTime 60"
+                        sed -i 's/#LoginGraceTime '$value_find_LoginGraceTime'/LoginGraceTime 60/g' "$file_ssh"
+                fi
+        fi
+}
 
 
