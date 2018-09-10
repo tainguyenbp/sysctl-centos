@@ -1215,7 +1215,6 @@ enable_service_crond
 chown_chmod_crond
 tunning_ssh
 MaxAuthTries_ssh
-MACs_ssh
 ClientAliveInterval_ssh
 ClientAliveCountMax_ssh
 LoginGraceTime_ssh
