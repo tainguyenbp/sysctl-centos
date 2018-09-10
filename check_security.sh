@@ -935,7 +935,161 @@ auditctl_scope(){
 				
 }
 
-auditctl_scope
+auditctl_actions(){
+
+                echo "result expect: "
+                echo "-w /var/log/sudo.log -p wa -k actions"
+
+                file_path=/etc/audit/audit.rules
+				
+		value_auditctl_actions=`cat /etc/audit/audit.rules | grep "/var/log/sudo.log" | grep "actions" | wc -l`
+				
+# -w /var/log/sudo.log -p wa -k actions
+
+        if [ "$value_auditctl_actions" == 0 ]
+                        then
+                                echo "Add -w /var/log/sudo.log -p wa -k actions to $file_path"
+                                echo "-w /var/log/sudo.log -p wa -k actions" >> "$file_path"
+        else
+                      echo "Not -w /var/log/sudo.log -p wa -k actions to $file_path"
+        fi
+				
+}
+
+
+setup_ntp_chrony(){
+
+        year=$(date -d "$i days ago" +"%Y")
+        month=$(date -d "$i days ago" +"%-m")
+        day=$(date -d "$i days ago" +"%-d")
+        ymd=$year$month$day
+		
+		cd /etc/
+		mv yum.conf yum.conf."$ymd"
+		
+		echo "[main]" >> /etc/yum.conf
+		echo "cachedir=/var/cache/yum/$basearch/$releasever" >> /etc/yum.conf
+		echo "keepcache=0" >> /etc/yum.conf
+		echo "debuglevel=2" >> /etc/yum.conf
+		echo "logfile=/var/log/yum.log" >> /etc/yum.conf
+		echo "exactarch=1" >> /etc/yum.conf
+		echo "obsoletes=1" >> /etc/yum.conf
+		echo "gpgcheck=1" >> /etc/yum.conf
+		echo "plugins=1" >> /etc/yum.conf
+		echo "installonly_limit=3" >> /etc/yum.conf
+		echo "#exclude=lighttpd* nginx* spawn-fcgi* webalizer*" >> /etc/yum.conf
+		echo "proxy=http://10.80.70.196:3128" >> /etc/yum.conf
+		echo "proxy_username=httpuser" >> /etc/yum.conf
+		echo "proxy_password=123456" >> /etc/yum.conf
+		
+		yum clean all && yum install ntp chrony
+
+	var=`cat /etc/centos-release | awk '{print $2}'`	
+	if [ "$var" == "Linux" ]
+		then 
+			echo "enable service ntpd and chronyd on centos 7"
+			systemctl enable chronyd && systemctl enable ntpd			
+				
+	elif [ "$var" == "release" ] 
+		then
+		echo "enable service ntpd and chronyd on centos 6"
+		chkconfig ntpd on && chkconfig chronyd on	
+	else
+		echo "command not execute"	
+	fi
+			
+}
+
+enable_service_rsyslog(){
+
+	var=`cat /etc/centos-release | awk '{print $2}'`
+        if [ "$var" == "Linux" ]
+                then
+                        echo "enable service rsyslog on centos 7"
+				systemctl enable rsyslog	
+        elif [ "$var" == "release" ]
+                then
+                echo "enable service rsyslog on centos 6"
+			chkconfig rsyslog on	
+        else
+                echo "command not execute"
+        fi
+	
+}
+
+enable_service_rsyslog(){
+
+        var=`cat /etc/centos-release | awk '{print $2}'`
+        if [ "$var" == "Linux" ]
+                then
+                        echo "enable service crond on centos 7"
+                                systemctl enable crond
+        elif [ "$var" == "release" ]
+                then
+                echo "enable service rsyslog on centos 6"
+                        chkconfig crond on
+        else
+                echo "command not execute"
+        fi
+
+}
+
+chown_chmod_crond(){
+
+		chown root:root /etc/cron.daily  /etc/cron.hourly /etc/cron.monthly /etc/cron.weekly
+		chmod og-rwx /etc/cron.daily /etc/cron.hourly /etc/cron.monthly /etc/cron.weekly
+			
+}
+
+tunning_ssh(){
+
+	chown root:root /etc/ssh/sshd_config 
+	chmod og-rwx /etc/ssh/sshd_config
+	
+	file_ssh="/etc/ssh/sshd_config"
+	
+	value_protocal=`egrep "^Protocol" /etc/ssh/sshd_config | wc -l`
+	if [ "$value_protocal" == 0 ]
+		then 
+		echo "add line Protocol 2 to $file_ssh"
+		echo "Protocol 2" >> "$file_ssh"
+	else
+		value_find_protocol=`egrep "^Protocol" /etc/ssh/sshd_config | awk '{print $2}'`
+		if [ "$value_find_protocol" == 2 ]
+			then 
+				echo "not change value protocol 2"
+		else
+			echo "change parameter Protocol '$value_find_protocol to Protocol 2"
+			sed -i 's/Protocol '$value_find_protocol'/Protocol 2/g' "$file_ssh"
+		fi
+	fi
+}
+
+
+MaxAuthTries_ssh(){
+
+        file_ssh="/etc/ssh/sshd_config"
+
+        value_MaxAuthTries=`egrep "#MaxAuthTries" /etc/ssh/sshd_config | wc -l`
+        if [ "$value_MaxAuthTries" == 0 ]
+                then
+                echo "add line MaxAuthTries 4 to $file_ssh"
+                echo "MaxAuthTries 4" >> "$file_ssh"
+        else
+                value_find_MaxAuthTries=`egrep "#MaxAuthTries" /etc/ssh/sshd_config | awk '{print $2}'`
+                if [ "$value_find_MaxAuthTries" == 4 ]
+                        then
+                                echo "not change value MaxAuthTries 4"
+				sed -i 's/#MaxAuthTries '$value_find_MaxAuthTries'/MaxAuthTries 4/g' "$file_ssh"
+                else
+                        echo "change parameter MaxAuthTries '$value_find_MaxAuthTries to MaxAuthTries 4"
+                        sed -i 's/#MaxAuthTries '$value_find_MaxAuthTries'/MaxAuthTries 4/g' "$file_ssh"
+                fi
+        fi
+}
+
+
+
 
 
 
